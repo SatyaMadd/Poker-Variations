@@ -52,8 +52,21 @@ try {
     suit TEXT
   )"
   );
+  $res = $db->exec(
+  "CREATE TABLE IF NOT EXISTS totCards(    
+    id INTEGER PRIMARY KEY,
+    cardNumber INTEGER,
+    suit INTEGER
+  )"
+  );
   $stmt = $db->prepare("INSERT INTO globalV (round, turns, pot) VALUES (:round, :turns, :pot)");
   $stmt->execute(['round' => 1, 'turns' => 0, 'pot' => 0]);
+  $insert = $db->prepare("INSERT INTO totCards (cardNumber, suit) VALUES (?, ?)");
+  for ($suit = 1; $suit <= 4; $suit++) {
+    for ($cardNumber = 1; $cardNumber <= 13; $cardNumber++) {
+      $insert->execute([$cardNumber, $suit]);
+    }
+  }
   $_SESSION['messages'] = $db->query("SELECT * FROM messages")->fetchAll(PDO::FETCH_ASSOC);
   $db = null;
   $_SESSION['messages'] = $db->query("SELECT * FROM messages")->fetchAll(PDO::FETCH_ASSOC);

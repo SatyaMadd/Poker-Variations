@@ -11,40 +11,19 @@ try {
   $stmt = $db->prepare('SELECT ROWID, * FROM messages WHERE name = :name');
   $stmt->execute([':name' => $name]);
   $row = $stmt->fetch(PDO::FETCH_ASSOC);
-  $cardNumber1 = rand(1, 13);
-  $cardNumber2 = rand(1, 13);
-  $suitN = rand(1, 4);
-  $suit1 = '';
-  $suit2 = '';
-  switch ($suitN) {
-    case 1:
-      $suit1 = 'Hearts';
-      break;
-    case 2:
-      $suit1 = 'Diamonds';
-      break;
-    case 3:
-      $suit1 = 'Spades';
-      break;
-    case 4:
-      $suit1 = 'Clubs';
-      break;
+  $select = $db->query("SELECT * FROM totCards ORDER BY RANDOM() LIMIT 2");
+  $cards = $select->fetchAll(PDO::FETCH_ASSOC);
+  $delete = $db->prepare("DELETE FROM totCards WHERE id = ?");
+  foreach ($cards as $card) {
+    $delete->execute([$card['id']]);
   }
-  $suitN = rand(1, 4);
-  switch ($suitN) {
-    case 1:
-      $suit2 = 'Hearts';
-      break;
-    case 2:
-      $suit2 = 'Diamonds';
-      break;
-    case 3:
-      $suit2 = 'Spades';
-      break;
-    case 4:
-      $suit2 = 'Clubs';
-      break;
-  }
+  $card1 = $cards[0];
+  $card2 = $cards[1];
+  $suits = ['1' => 'Hearts', '2' => 'Diamonds', '3' => 'Spades', '4' => 'Clubs'];
+  $cardNumber1 = $card1['cardNumber'];
+  $cardNumber2 = $card2['cardNumber'];
+  $suit1 = $suits[$card1['suit']];
+  $suit2 = $suits[$card2['suit']];
   $stmt = $db->query("SELECT COUNT(*) FROM messages");
   $rowCount = $stmt->fetchColumn();
   $turn = ($rowCount == 0) ? 'yes' : 'no';

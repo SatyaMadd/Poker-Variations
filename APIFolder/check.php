@@ -26,25 +26,14 @@ try {
       $k = 1;
     }
     for($i = 1; $i <= $k; $i++){
-      $cardNumber1 = rand(1, 13);
-      $suitN = rand(1, 4);
-      $suit1 = '';
-      switch ($suitN) {
-        case 1:
-          $suit1 = 'Hearts';
-          break;
-        case 2:
-          $suit1 = 'Diamonds';
-          break;
-        case 3:
-          $suit1 = 'Spades';
-          break;
-        case 4:
-          $suit1 = 'Clubs';
-          break;
-      }
-      $stmt = $db->prepare("INSERT INTO cards (cardNumber, suit) VALUES (:cardNumber, :suit)");
-      $stmt->execute([':cardNumber' => $cardNumber1, ':suit' => $suit1]);
+      $select = $db->query("SELECT * FROM totCards ORDER BY RANDOM() LIMIT 1");
+      $card = $select->fetch(PDO::FETCH_ASSOC);
+      $delete = $db->prepare("DELETE FROM totCards WHERE id = ?");
+      $delete->execute([$card['id']]);
+      $suits = ['1' => 'Hearts', '2' => 'Diamonds', '3' => 'Spades', '4' => 'Clubs'];
+      $suit = $suits[$card['suit']];
+      $insert = $db->prepare("INSERT INTO cards (cardNumber, suit) VALUES (:cardNumber, :suit)");
+      $insert->execute(['cardNumber' => $card['cardNumber'], 'suit' => $suit]);
     }
   } else {
     $stmt = $db->prepare("UPDATE globalV SET turns = turns + 1 WHERE id = 1");
@@ -121,6 +110,35 @@ try {
     $stmt->execute();
     $stmt = $db->prepare("UPDATE betTrack SET totalAm = 0");
     $stmt->execute();
+    $stmt = $db->prepare("
+        DELETE FROM totCards
+    ");
+    $stmt->execute();
+    $insert = $db->prepare("INSERT INTO totCards (cardNumber, suit) VALUES (?, ?)");
+    for ($suit = 1; $suit <= 4; $suit++) {
+      for ($cardNumber = 1; $cardNumber <= 13; $cardNumber++) {
+        $insert->execute([$cardNumber, $suit]);
+      }
+    }
+    $selectMessages = $db->query("SELECT * FROM messages");
+    $messages = $selectMessages->fetchAll(PDO::FETCH_ASSOC);
+    $updateMessage = $db->prepare("UPDATE messages SET cardNumber1 = :cardNumber1, suit1 = :suit1, cardNumber2 = :cardNumber2, suit2 = :suit2 WHERE id = :id");
+    $suits = ['1' => 'Hearts', '2' => 'Diamonds', '3' => 'Spades', '4' => 'Clubs'];
+    foreach ($messages as $message) {
+      $selectCards = $db->query("SELECT * FROM totCards ORDER BY RANDOM() LIMIT 2");
+      $cards = $selectCards->fetchAll(PDO::FETCH_ASSOC);
+      $deleteCard = $db->prepare("DELETE FROM totCards WHERE id = ?");
+      foreach ($cards as $card) {
+        $deleteCard->execute([$card['id']]);
+      }
+      $updateMessage->execute([
+        'cardNumber1' => $cards[0]['cardNumber'],
+        'suit1' => $suits[$cards[0]['suit']],
+        'cardNumber2' => $cards[1]['cardNumber'],
+        'suit2' => $suits[$cards[1]['suit']],
+        'id' => $message['id']
+      ]);
+    }
   }
   if ($currentTurns == $messageCount-1) {
     $stmt = $db->prepare("SELECT name FROM betTrack ORDER BY id ASC LIMIT :messageCount");
