@@ -14,6 +14,9 @@ try {
   $db->exec(
     "DROP TABLE IF EXISTS cards;"
   );
+  $db->exec(
+    "DROP TABLE IF EXISTS winners;"
+  );
   $res = $db->exec(
     "CREATE TABLE IF NOT EXISTS messages (    
       id INTEGER PRIMARY KEY,
@@ -57,6 +60,13 @@ try {
     id INTEGER PRIMARY KEY,
     cardNumber INTEGER,
     suit INTEGER
+  )"
+  );
+  $res = $db->exec(
+  "CREATE TABLE IF NOT EXISTS winners(    
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    score DECIMAL(13, 12)
   )"
   );
   $stmt = $db->prepare("INSERT INTO globalV (round, turns, pot) VALUES (:round, :turns, :pot)");

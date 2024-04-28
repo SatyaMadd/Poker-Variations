@@ -48,6 +48,13 @@ try {
     suit INTEGER
   )"
   );
+  $res = $db->exec(
+  "CREATE TABLE IF NOT EXISTS winners(    
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    score DECIMAL(13, 12)
+  )"
+  );
   $stmt = $db->query("SELECT COUNT(*) FROM globalV");
   $count = $stmt->fetchColumn();
   if ($count == 0) {
