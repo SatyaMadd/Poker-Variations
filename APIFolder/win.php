@@ -2,7 +2,6 @@
 try {
   $db = new PDO('sqlite:database.sqlite');
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
   // Get all players whose status is 'yes' from the messages table
   $selectPlayers = $db->prepare("SELECT * FROM messages WHERE status = 'yes'");
   $selectPlayers->execute();

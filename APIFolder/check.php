@@ -22,7 +22,7 @@ try {
     $k = 0;
     if($currentRounds == 2){
       $k = 3; 
-    }else{
+    }else if($currentRounds <= 4){
       $k = 1;
     }
     for($i = 1; $i <= $k; $i++){
@@ -79,6 +79,12 @@ try {
   $stmt->bindParam(':adjustedBetAm', $adjustedBetAm);
   $stmt->execute(); 
   if($currentRounds>4){
+    $db->commit();
+    function include_win_php() {
+        include_once 'win.php';
+    }
+    include_win_php();
+    $db->beginTransaction();
     $stmt = $db->prepare("UPDATE messages SET status = 'yes' WHERE status = 'no'");
     $stmt->execute();
     $stmt = $db->prepare("SELECT COUNT(*) FROM messages WHERE status = 'yes'");
