@@ -1,2 +1,2 @@
 # Poker-Variations
-Poker VAriations Game
+Poker Game
